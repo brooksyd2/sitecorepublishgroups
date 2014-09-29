@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Sitecore.PublishTargetGroups</id>
+    <version>0.0.1</version>
+    <title>Sitecore Publish Target Groups</title>
+    <authors>Damian Brooks</authors>
+    <owners>Sitecore Technical Services UK</owners>
+    <licenseUrl>http://www.sitecore.net</licenseUrl>
+    <projectUrl>http://www.sitecore.net</projectUrl>
+    <iconUrl>https://s.gravatar.com/avatar/f2cac040cabd4487535af67c855ff521?s=80</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>This project introduces groupings of publishing targets to hide multiple publishing targets from Content Editors.</description>
+    <releaseNotes>Still in development</releaseNotes>
+    <tags>Sitecore, Publishing</tags>
+	<language>en-GB</language>
+    <dependencies>
+    </dependencies>
+  </metadata>
+    <files>
+    <file src="..\src\Sitecore.PublishTargetGroups\bin\Debug\Sitecore.PublishTargetGroups.dll" target="lib\net40" />
+    <file src="..\src\Sitecore.PublishTargetGroups\bin\Debug\Sitecore.PublishTargetGroups.pdb" target="lib\net40" />
+    
+    <file src="..\src\Sitecore.PublishTargetGroups\content\**\*" target="content" />
+  </files>
+</package>
