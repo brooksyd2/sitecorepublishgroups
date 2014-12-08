@@ -64,6 +64,11 @@ namespace Sitecore.PublishTargetGroups
         /// </summary>
         protected Checkbox PublishChildren;
         /// <summary>
+        /// The publish related items
+        /// 
+        /// </summary>
+        protected Checkbox PublishRelatedItems;
+        /// <summary>
         /// The publish children pane.
         /// 
         /// </summary>
@@ -369,6 +374,7 @@ namespace Sitecore.PublishTargetGroups
             this.IncrementalPublish.Checked = Registry.GetBool("/Current_User/Publish/IncrementalPublish", true);
             this.SmartPublish.Checked = Registry.GetBool("/Current_User/Publish/SmartPublish", false);
             this.Republish.Checked = Registry.GetBool("/Current_User/Publish/Republish", false);
+            
             if (!HasRepublishAccess)
             {
                 this.Republish.Checked = false;
@@ -376,6 +382,8 @@ namespace Sitecore.PublishTargetGroups
             }
 
             this.PublishChildren.Checked = Registry.GetBool("/Current_User/Publish/PublishChildren", true);
+            this.PublishRelatedItems.Checked = Registry.GetBool("/Current_User/Publish/PublishRelatedItems", true);
+
             if (!string.IsNullOrEmpty(this.ItemID))
             {
                 this.IncrementalPublishPane.Style["display"] = "none";
@@ -420,15 +428,16 @@ namespace Sitecore.PublishTargetGroups
             Language[] languages = GetLanguages();
             List<Item> publishingTargets = GetPublishingTargets();
             Database[] publishingTargetDatabases = GetPublishingTargetDatabases();
-            bool flag1 = Context.ClientPage.ClientRequest.Form["PublishMode"] == "IncrementalPublish";
-            bool flag2 = Context.ClientPage.ClientRequest.Form["PublishMode"] == "SmartPublish";
-            bool flag3 = Context.ClientPage.ClientRequest.Form["PublishMode"] == "Republish";
+            bool incremental = Context.ClientPage.ClientRequest.Form["PublishMode"] == "IncrementalPublish";
+            bool smart = Context.ClientPage.ClientRequest.Form["PublishMode"] == "SmartPublish";
+            bool republish = Context.ClientPage.ClientRequest.Form["PublishMode"] == "Republish";
             bool rebuild = this.Rebuild;
-            bool @checked = this.PublishChildren.Checked;
+            bool childrenChecked = this.PublishChildren.Checked;
+            bool relatedChecked = this.PublishRelatedItems.Checked;
             if (rebuild)
                 Log.Audit(this, "Rebuild database, databases: {0}", new string[] { StringUtil.Join(publishingTargetDatabases, ", ") });
             else
-                Log.Audit(this, "Publish, languages:{0}, targets:{1}, databases:{2}, incremental:{3}, smart:{4}, republish:{5}, children:{6}", StringUtil.Join(languages, ", "), StringUtil.Join(publishingTargets, ", ", "Name"), StringUtil.Join(publishingTargetDatabases, ", "), MainUtil.BoolToString(flag1), MainUtil.BoolToString(flag2), MainUtil.BoolToString(flag3), MainUtil.BoolToString(@checked));
+                Log.Audit(this, "Publish, languages:{0}, targets:{1}, databases:{2}, incremental:{3}, smart:{4}, republish:{5}, children:{6}, related:{7}", StringUtil.Join(languages, ", "), StringUtil.Join(publishingTargets, ", ", "Name"), StringUtil.Join(publishingTargetDatabases, ", "), MainUtil.BoolToString(incremental), MainUtil.BoolToString(smart), MainUtil.BoolToString(republish), MainUtil.BoolToString(childrenChecked), MainUtil.BoolToString(relatedChecked));
             var listString1 = new ListString();
             foreach (Language language in languages)
                 listString1.Add(language.ToString());
@@ -437,11 +446,12 @@ namespace Sitecore.PublishTargetGroups
             foreach (Item obj in publishingTargets)
                 listString2.Add(obj.ID.ToString());
             Registry.SetString("/Current_User/Publish/Targets", listString2.ToString());
-            Registry.SetBool("/Current_User/Publish/IncrementalPublish", flag1);
-            Registry.SetBool("/Current_User/Publish/SmartPublish", flag2);
-            Registry.SetBool("/Current_User/Publish/Republish", flag3);
-            Registry.SetBool("/Current_User/Publish/PublishChildren", @checked);
-            this.JobHandle = (string.IsNullOrEmpty(this.ItemID) ? (!flag1 ? (!flag2 ? (!rebuild ? PublishManager.Republish(Sitecore.Client.ContentDatabase, publishingTargetDatabases, languages, Context.Language) : PublishManager.RebuildDatabase(Sitecore.Client.ContentDatabase, publishingTargetDatabases)) : PublishManager.PublishSmart(Sitecore.Client.ContentDatabase, publishingTargetDatabases, languages, Context.Language)) : PublishManager.PublishIncremental(Sitecore.Client.ContentDatabase, publishingTargetDatabases, languages, Context.Language)) : PublishManager.PublishItem(Sitecore.Client.GetItemNotNull(this.ItemID), publishingTargetDatabases, languages, @checked, flag2)).ToString();
+            Registry.SetBool("/Current_User/Publish/IncrementalPublish", incremental);
+            Registry.SetBool("/Current_User/Publish/SmartPublish", smart);
+            Registry.SetBool("/Current_User/Publish/Republish", republish);
+            Registry.SetBool("/Current_User/Publish/PublishChildren", childrenChecked);
+            Registry.SetBool("/Current_User/Publish/PublishRelatedItems", relatedChecked);
+            this.JobHandle = (string.IsNullOrEmpty(this.ItemID) ? (!incremental ? (!smart ? (!rebuild ? PublishManager.Republish(Sitecore.Client.ContentDatabase, publishingTargetDatabases, languages, Context.Language) : PublishManager.RebuildDatabase(Sitecore.Client.ContentDatabase, publishingTargetDatabases)) : PublishManager.PublishSmart(Sitecore.Client.ContentDatabase, publishingTargetDatabases, languages, Context.Language)) : PublishManager.PublishIncremental(Sitecore.Client.ContentDatabase, publishingTargetDatabases, languages, Context.Language)) : PublishManager.PublishItem(Sitecore.Client.GetItemNotNull(this.ItemID), publishingTargetDatabases, languages, childrenChecked, smart, relatedChecked)).ToString();
             SheerResponse.Timer("CheckStatus", Settings.Publishing.PublishDialogPollingInterval);
         }
 
