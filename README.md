@@ -11,5 +11,5 @@ The module adds the following setting into the web.config to allow setting defau
       <setting name="DefaultPublishingTargetGroups" value="" />
 
 	  
-  For projects using Sitecore versions prior to v7.2, then build from the sitecore71prev tag. 
+  For projects using Sitecore versions prior to v7.2, then build from the 'v7.1' tag. 
   
